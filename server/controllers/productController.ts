@@ -1,6 +1,6 @@
 import { where } from "sequelize/types";
 import { ICategoryController } from "./categoryController";
-const { Product } = require('../models/models')
+const { Product , ProductInfo} = require('../models/models')
 const ApiError = require('../error/ApiError')
 const uuid = require('uuid')
 const path = require('path')
@@ -13,11 +13,26 @@ export interface IProductController extends ICategoryController{
 class ProductController implements IProductController{
     async create(req: any, res: any, next:any) {
       try{
-        const { name,price, info, brandId, categoryId} = req.body
+        let { name,price, info, brandId, categoryId} = req.body
         const {img} = req.files
         let fileName = uuid.v4() + '.jpg'
         img.mv(path.resolve(__dirname, '..', 'static', fileName))
         const product = await Product.create({ name, price,categoryId, brandId, img:fileName,  })
+
+        if(info){
+          info = JSON.parse(info)
+          info.forEach((i:any) => {
+            ProductInfo.create({
+              title:i.title,
+              description:i.description,
+              id: product.id,
+            })
+            
+          })
+        }
+
+
+        
         return res.json(product)
       }catch(e:any){
         next(ApiError.badRequest(e.message))
@@ -47,7 +62,13 @@ class ProductController implements IProductController{
       return res.json(products)
     }
     async getOne(req: any, res: any) {
-      const product = await Product.find()
+      const {id} = req.params
+      const product = await Product.findOne(
+        {
+          where:{id},
+          include:[{model: ProductInfo, as: 'info'}]
+      
+      })
       return res.json(product)
     }
 

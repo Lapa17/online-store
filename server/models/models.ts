@@ -74,7 +74,7 @@ BasketProduct.belongsTo(Basket)
 BasketProduct.hasOne(Product)
 Product.belongsTo(BasketProduct)
 
-Product.hasMany(ProductInfo)
+Product.hasMany(ProductInfo, {as:'info'})
 ProductInfo.belongsTo(Product)
 
 Product.hasMany(Rating)

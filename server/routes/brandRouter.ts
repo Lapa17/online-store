@@ -1,9 +1,11 @@
+import { ICategoryController } from "../controllers/categoryController"
+
 const Router = require('express')
 const router = new Router()
+const BrandController: ICategoryController = require('../controllers/brandController')
 
-
-router.get('/')
-router.post('/')
+router.get('/', BrandController.getAll)
+router.post('/', BrandController.create)
 
 
 module.exports = router 

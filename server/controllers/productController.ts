@@ -12,11 +12,11 @@ export interface IProductController extends ICategoryController{
 class ProductController implements IProductController{
     async create(req: any, res: any, next:any) {
       try{
-        const { name,price, info, brand_id, category_id } = req.body
+        const { name,price, info, brandId, categoryId} = req.body
         const {img} = req.files
         let fileName = uuid.v4() + '.jpg'
         img.mv(path.resolve(__dirname, '..', 'static', fileName))
-        const product = await Product.create({ name, price,category_id, brand_id, img:fileName,  })
+        const product = await Product.create({ name, price,categoryId, brandId, img:fileName,  })
         return res.json(product)
       }catch(e:any){
         next(ApiError.badRequest(e.message))

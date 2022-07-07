@@ -1,3 +1,4 @@
+import { where } from "sequelize/types";
 import { ICategoryController } from "./categoryController";
 const { Product } = require('../models/models')
 const ApiError = require('../error/ApiError')
@@ -25,7 +26,24 @@ class ProductController implements IProductController{
     }
 
     async getAll(req: any, res: any) {
-      const products = await Product.findAll()
+      let {brandId, categoryId, page, limit} = req.query
+      page = page || 1  // номер страницы
+      limit = limit || 10 // кол-во товаров на странице
+      let offset = page*limit - limit // показывает какой пак товарод для конткретной страницы
+      let products
+      if(!brandId && !categoryId){
+        products = await Product.findAndCountAll({limit, offset})
+      }
+      if(brandId && !categoryId){
+        products = await Product.findAndCountAll({where:{brandId}}, limit, offset)
+      }
+      if(!brandId && categoryId){
+        products = await Product.findAndCountAll({where:{categoryId}}, limit, offset)
+      }
+      if(brandId && categoryId){
+        products = await Product.findAndCountAll({where:{brandId, categoryId}}, limit, offset)
+      }
+
       return res.json(products)
     }
     async getOne(req: any, res: any) {
